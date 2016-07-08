@@ -3,10 +3,12 @@ import Component from '../../containers/component.jsx';
 import {bindActionCreators} from 'redux';
 import {connect} from 'react-redux';
 import * as SseActions from './actions';
+import {immutableRenderDecorator} from 'react-immutable-render-mixin';
 import {Button, FormGroup, ControlLabel, FormControl, ButtonGroup} from 'react-bootstrap';
 import {removeReducerPrefixer} from '../../appCommon/prefix';
-
+const TITLE = 'S&B聊天室';
 /*import '../style/chatRoom.less';*/
+@immutableRenderDecorator
 
 class Chat extends Component {
     state = {
@@ -15,24 +17,48 @@ class Chat extends Component {
     };
 
     componentWillMount() {
-        this.props.actions.initChat();
+        document.addEventListener('visibilitychange',function(){
+            if(document.hidden){
+
+            }else{
+                document.title =TITLE;
+            }
+        },false);
+        if (io) {
+            this.props.actions.initChat();
+        } else {
+            this.props.history.pushState(null, '/');
+        }
+
     }
 
     componentDidMount() {
-        if (this.props.chat.hasLogin) {
-            this.scrollToEnd.call(this, 'chatCnt')
+        let chat = this.props.chat.toJS ? this.props.chat.toJS() : {};
+        if (chat.hasLogin) {
+            this.scrollToEnd.call(this, 'chatCnt');
             this.scrollToEnd.call(this, 'linkerCnt')
         }
     }
 
-    componentDidUpdate() {
-        if (this.props.chat.hasLogin) {
-            this.scrollToEnd.call(this, 'chatCnt')
-            this.scrollToEnd.call(this, 'linkerCnt')
+    componentDidUpdate(prevProps) {
+        let chat = this.props.chat.toJS ? this.props.chat.toJS() : {message: []};
+        let prevChat = prevProps.chat.toJS ? prevProps.chat.toJS() : {message: []};
+        let count = 0;
+        let chatMessage = chat.message || [];
+        let prevChatMessage = prevChat.message || [];
+        if (chat.hasLogin && (count = chatMessage.length - prevChatMessage.length) && count > 0) {
+            if (document.hidden) {
+                document.title = `您有${count}条消息未读……`
+            } else {
+                document.title = TITLE;
+            }
+            this.scrollToEnd.call(this, 'chatCnt');
+            this.scrollToEnd.call(this, 'linkerCnt');
         }
     }
 
-    operate(type, refs) {
+    operate(type, refs, e) {
+        e && e.preventDefault();
         let obj = {}, newObj = {};
         if (refs.shift) {
             for (var i = 0; i < refs.length; i++) {
@@ -46,6 +72,13 @@ class Chat extends Component {
         }
         this.props.actions[type](obj);
         this.setState(newObj);
+    }
+
+    handleKeyDown(type, refs, e) {
+        if (e.keyCode === 13 && e.ctrlKey) {
+            e.preventDefault(); //阻止默认回车换行
+            this.operate.call(this, type, refs)
+        }
     }
 
     handleChange(attr, e) {
@@ -107,7 +140,7 @@ class Chat extends Component {
          }*/
         if (!chat.hasLogin) {
             return (
-                <form className="page">
+                <form className="page" onSubmit={this.operate.bind(this,'login',['userName','namespace'])}>
                     <FormGroup controlId="userName">
                         <ControlLabel>用户名</ControlLabel>
                         <FormControl type="text" value={this.state.userName}
@@ -120,20 +153,20 @@ class Chat extends Component {
                                      onChange={this.handleChange.bind(this,'namespace')}
                                      placeholder="请输入暗号"/>
                     </FormGroup>
-                    <Button onClick={this.operate.bind(this,'login',['userName','namespace'])}> 登录 </Button>
+                    <Button type="submit"> 登录 </Button>
                 </form>
 
             )
         }
         return (
-            <div className="cnt">
+            <div className="cnt" onKeyDown={this.handleKeyDown.bind(this,'sendMessage','writeMessage')}>
                 <h2>聊天室</h2>
                 <div ref="linkerCnt" className="linker-cnt">
                     <ButtonGroup vertical block>
                         {
                             linker && Object.keys(linker).length > 0 && Object.keys(linker).map((key)=> {
                                 let item = linker[key];
-                                return <Button>{item.name}</Button>
+                                return <p>{item}</p>
                             })
                         }
 
@@ -148,13 +181,16 @@ class Chat extends Component {
                     }
                 </div>
 
-                <FormGroup className="send-cnt" controlId="formControlsTextarea">
-                    <ControlLabel className="send-label">请输入信息</ControlLabel>
-                    <FormControl value={this.state.writeMessage} componentClass="textarea" placeholder="textarea"
-                                 onChange={this.handleChange.bind(this,'writeMessage')}/>
-                    <Button className="send-btn" type="submit"
-                            onClick={this.operate.bind(this,'sendMessage','writeMessage')}> 发 送 </Button>
-                </FormGroup>
+                <form>
+                    <FormGroup className="send-cnt" controlId="formControlsTextarea">
+                        <ControlLabel className="send-label">请输入信息</ControlLabel>
+                        <FormControl value={this.state.writeMessage} componentClass="textarea" placeholder="textarea"
+                                     onChange={this.handleChange.bind(this,'writeMessage')}/>
+                        <Button className="send-btn" type="button"
+                                onClick={this.operate.bind(this,'sendMessage','writeMessage')}> （ctrl+enter）发
+                            送 </Button>
+                    </FormGroup>
+                </form>
             </div>
         );
     }
