@@ -3,10 +3,12 @@ import Component from '../../containers/component.jsx';
 import {bindActionCreators} from 'redux';
 import {connect} from 'react-redux';
 import * as SseActions from './actions';
+import {immutableRenderDecorator} from 'react-immutable-render-mixin';
 import {Button, FormGroup, ControlLabel, FormControl, ButtonGroup} from 'react-bootstrap';
 import {removeReducerPrefixer} from '../../appCommon/prefix';
-
+const TITLE = 'S&B聊天室';
 /*import '../style/chatRoom.less';*/
+@immutableRenderDecorator
 
 class Chat extends Component {
     state = {
@@ -15,6 +17,13 @@ class Chat extends Component {
     };
 
     componentWillMount() {
+        document.addEventListener('visibilitychange',function(){
+            if(document.hidden){
+
+            }else{
+                document.title =TITLE;
+            }
+        },false);
         if (io) {
             this.props.actions.initChat();
         } else {
@@ -31,15 +40,24 @@ class Chat extends Component {
         }
     }
 
-    componentDidUpdate() {
-        let chat = this.props.chat.toJS ? this.props.chat.toJS() : {};
-        if (chat.hasLogin) {
-            this.scrollToEnd.call(this, 'chatCnt')
-            this.scrollToEnd.call(this, 'linkerCnt')
+    componentDidUpdate(prevProps) {
+        let chat = this.props.chat.toJS ? this.props.chat.toJS() : {message: []};
+        let prevChat = prevProps.chat.toJS ? prevProps.chat.toJS() : {message: []};
+        let count = 0;
+        let chatMessage = chat.message || [];
+        let prevChatMessage = prevChat.message || [];
+        if (chat.hasLogin && (count = chatMessage.length - prevChatMessage.length) && count > 0) {
+            if (document.hidden) {
+                document.title = `您有${count}条消息未读……`
+            } else {
+                document.title = TITLE;
+            }
+            this.scrollToEnd.call(this, 'chatCnt');
+            this.scrollToEnd.call(this, 'linkerCnt');
         }
     }
 
-    operate(type, refs,e) {
+    operate(type, refs, e) {
         e && e.preventDefault();
         let obj = {}, newObj = {};
         if (refs.shift) {
@@ -56,10 +74,10 @@ class Chat extends Component {
         this.setState(newObj);
     }
 
-    handleKeyDown(type, refs,e){
+    handleKeyDown(type, refs, e) {
         if (e.keyCode === 13 && e.ctrlKey) {
             e.preventDefault(); //阻止默认回车换行
-            this.operate.call(this,type, refs)
+            this.operate.call(this, type, refs)
         }
     }
 
@@ -168,7 +186,9 @@ class Chat extends Component {
                         <ControlLabel className="send-label">请输入信息</ControlLabel>
                         <FormControl value={this.state.writeMessage} componentClass="textarea" placeholder="textarea"
                                      onChange={this.handleChange.bind(this,'writeMessage')}/>
-                        <Button className="send-btn" type="button" onClick={this.operate.bind(this,'sendMessage','writeMessage')}> （ctrl+enter）发 送 </Button>
+                        <Button className="send-btn" type="button"
+                                onClick={this.operate.bind(this,'sendMessage','writeMessage')}> （ctrl+enter）发
+                            送 </Button>
                     </FormGroup>
                 </form>
             </div>
