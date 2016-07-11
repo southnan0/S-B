@@ -47,10 +47,10 @@ class Chat extends Component {
         let count = 0;
         let chatMessage = chat.message || [];
         let prevChatMessage = prevChat.message || [];
-        if (chat.hasLogin && (count = chatMessage.length - prevChatMessage.length) && count > 0) {
+        let lastMessageLength = this.state.lastMessageLength++;
+        if (chat.hasLogin && (count = lastMessageLength) && count > 0) {
             if (document.hidden) {
                 document.title = `您有${count}条消息未读……`
-                let lastMessageLength = this.state.lastMessageLength++;
                 this.setState({lastMessageLength})
             } else {
                 document.title = TITLE;
