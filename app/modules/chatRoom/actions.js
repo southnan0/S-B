@@ -26,7 +26,7 @@ export const initChat = ()=> {
             chat = chat.toJS();
             let {message=[]} = chat;
 
-            let m = _.omit(data, 'hasLogin', 'linker');
+            let m = _.omit(data, 'hasLogin', 'linker','userName');
             _.isEmpty(m) || message.push(m);
             chat.message = message;
             if(data.linker){
@@ -35,7 +35,7 @@ export const initChat = ()=> {
                 chat.linker['_l' + id] = data.linker.name;
             }
 
-            dispatch(setMessage(_.extend({}, chat, _.pick(data, 'hasLogin'))));
+            dispatch(setMessage(_.extend({}, chat, _.pick(data, 'hasLogin','userName'))));
         });
 
         socket.on('broadcasted', (data)=> {

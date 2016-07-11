@@ -46,6 +46,7 @@ io.on('connection', function (socket) {
         //todo   如果用socket.emit 的话，别人上线，自己不知道。  还没调通
         socket.emit('message', {
             hasLogin: true
+            , userName: socket.name
         });
         io.to(socket.room).emit('message', {
             linker: {
@@ -64,6 +65,9 @@ io.on('connection', function (socket) {
 function handleRender(req, res) {
     if (req.url === '/time_sse.php') {
         timer(req, res);
+    } else if (req.url.match(/\/voice\/(.*)/g)) {
+        let url = req.url.match(/\/voice\/(.*)/g)[0];
+        res.sendFile(__dirname + url);
     } else {
         // req.url is the full url
         defaults(req, res);
