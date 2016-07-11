@@ -13,17 +13,18 @@ const TITLE = 'S&B聊天室';
 class Chat extends Component {
     state = {
         userName: "",
-        namespace: ""
+        namespace: "",
+        lastMessageLength: 0
     };
 
     componentWillMount() {
-        document.addEventListener('visibilitychange',function(){
-            if(document.hidden){
+        document.addEventListener('visibilitychange', function () {
+            if (document.hidden) {
 
-            }else{
-                document.title =TITLE;
+            } else {
+                document.title = TITLE;
             }
-        },false);
+        }, false);
         if (io) {
             this.props.actions.initChat();
         } else {
@@ -49,9 +50,14 @@ class Chat extends Component {
         if (chat.hasLogin && (count = chatMessage.length - prevChatMessage.length) && count > 0) {
             if (document.hidden) {
                 document.title = `您有${count}条消息未读……`
+                let lastMessageLength = this.state.lastMessageLength++;
+                this.setState({lastMessageLength})
             } else {
                 document.title = TITLE;
+                this.setState({lastMessageLength: 0});
             }
+            let el = ReactDOM.findDOMNode(this.refs.message_video);
+            el.play();
             this.scrollToEnd.call(this, 'chatCnt');
             this.scrollToEnd.call(this, 'linkerCnt');
         }
@@ -164,9 +170,9 @@ class Chat extends Component {
                 <div ref="linkerCnt" className="linker-cnt">
                     <ButtonGroup vertical block>
                         {
-                            linker && Object.keys(linker).length > 0 && Object.keys(linker).map((key)=> {
+                            linker && Object.keys(linker).length > 0 && Object.keys(linker).map((key, index)=> {
                                 let item = linker[key];
-                                return <p>{item}</p>
+                                return <p key={index}>{item}</p>
                             })
                         }
 
@@ -175,8 +181,8 @@ class Chat extends Component {
 
                 <div ref="chatCnt" className="chat-cnt">
                     {
-                        message && message.map && message.map((item)=> {
-                            return <p>{item.sender} {item.sendTime}说：<br/>{item.cnt}</p>
+                        message && message.map && message.map((item,index)=> {
+                            return <p key={index}>{item.sender} {item.sendTime}说：<br/>{item.cnt}</p>
                         })
                     }
                 </div>
@@ -191,6 +197,9 @@ class Chat extends Component {
                             送 </Button>
                     </FormGroup>
                 </form>
+                <audio ref="message_video" width="0">
+                    <source src="../../../../voice/message.mp3"  type="audio/mpeg"/>
+                </audio>
             </div>
         );
     }
