@@ -24,6 +24,7 @@ class Chat extends Component {
 
             } else {
                 document.title = TITLE;
+                this.setState({lastMessageLength: 0});
             }
         }, false);
         if (io) {
