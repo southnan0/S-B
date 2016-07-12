@@ -19,12 +19,13 @@ class Chat extends Component {
     };
 
     componentWillMount() {
+        let _self = this;
         document.addEventListener('visibilitychange', function () {
             if (document.hidden) {
 
             } else {
                 document.title = TITLE;
-                this.setState({lastMessageLength: 0});
+                _self.setState({lastMessageLength: 0});
             }
         }, false);
         if (io) {
@@ -199,7 +200,9 @@ class Chat extends Component {
                 <div ref="chatCnt" className="chat-cnt">
                     {
                         message && message.map && message.map((item, index)=> {
-                            return <p key={index} className={item.sender === chat.userName?'right col-green':''}>{item.sender} {item.sendTime}说：<br/>{item.cnt}</p>
+                            return <p key={index}
+                                      className={item.sender === chat.userName?'right col-green':''}>{item.sender} {item.sendTime}说：<br/>{item.cnt}
+                            </p>
                         })
                     }
                 </div>
