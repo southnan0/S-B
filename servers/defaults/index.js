@@ -26,7 +26,7 @@ export default (req,res)=> {
 
         const store = compose(
             applyMiddleware.apply(this, middleware)
-        )(createStore)(rootReducer)
+        )(createStore)(rootReducer);
 
         // render the component to string
         const initialView = renderToString(
@@ -35,7 +35,7 @@ export default (req,res)=> {
                     { <RoutingContext {...renderProps} /> }
                 </Provider>
             </div>
-        )
+        );
 
         const initialState = store.getState();
 

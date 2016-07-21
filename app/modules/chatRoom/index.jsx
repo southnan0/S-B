@@ -20,7 +20,6 @@ class Chat extends Component {
 
     componentWillMount() {
         let _self = this;
-        console.info('改了点东西')
         document.addEventListener('visibilitychange', function () {
             if (document.hidden) {
 
@@ -34,7 +33,6 @@ class Chat extends Component {
         } else {
             this.props.history.pushState(null, '/');
         }
-
     }
 
     componentDidMount() {

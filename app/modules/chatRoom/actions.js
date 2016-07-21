@@ -25,14 +25,16 @@ export const initChat = ()=> {
             let {chat} = removeReducerPrefixer(getState(), 'CHAT_ROOM');
             chat = chat.toJS();
             let {message=[]} = chat;
-
-            let m = _.omit(data, 'hasLogin', 'linker','userName');
-            _.isEmpty(m) || message.push(m);
+            console.info(data)
+            _.isEmpty(data.message) || (message = message.concat(data.message));
             chat.message = message;
-            if(data.linker){
-                let id = data.linker.id;
-                chat.linker || (chat.linker = {});
-                chat.linker['_l' + id] = data.linker.name;
+            console.info(chat)
+            if(data.linker && data.linker.length>0){
+                data.linker.map((l)=>{
+                    let id = l.id;
+                    chat.linker || (chat.linker = {});
+                    chat.linker['_l' + id] = l.name;
+                })
             }
 
             dispatch(setMessage(_.extend({}, chat, _.pick(data, 'hasLogin','userName'))));
