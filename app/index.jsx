@@ -23,7 +23,7 @@ const history = createBrowserHistory();
 
 function renderDevTools(store) {
     if(__DEBUG__) {
-        const DevTools = require('./containers/DevTools').default;
+        const DevTools = require('./modules/DevTools').default;
         return (
             <DevTools store={ store }/>
         )
