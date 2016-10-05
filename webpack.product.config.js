@@ -49,9 +49,9 @@ module.exports = merge(common, {
         console: true, fs: 'empty', tls: 'empty'
     },
     module: {
-        // noParse: [
-        //     'ws'
-        // ],
+        noParse: [
+            'ws'
+        ],
         loaders: [
             { test: /\.less$/, loader: ExtractTextPlugin.extract('style', 'css!less'), include: PATHS.app },
             { test: /\.css$/, loader: ExtractTextPlugin.extract('style', 'css'), include: PATHS.app },
@@ -59,7 +59,7 @@ module.exports = merge(common, {
             { test: /\.(woff|woff2)$/, loader: 'url-loader?limit=100000', include: PATHS.app }
         ]
     },
-    // externals: ['ws'],
+    externals: ['ws'],
     plugins: [
         new HtmlwebpackPlugin({
             template: 'node_modules/html-webpack-template/index.html',

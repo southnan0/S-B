@@ -2,7 +2,7 @@ import fs from 'fs';
 let socketIO = require('socket.io');
 
 let createFileName = (room, type, fileType = 'txt') => {
-    return `../../chatData/${room}${type}${(new Date()).format('yyyyMMdd')}.${fileType}`
+    return `./chatData/${room}${type}${(new Date()).format('yyyyMMdd')}.${fileType}`
 };
 
 let readData = (data) => {
