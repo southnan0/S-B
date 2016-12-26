@@ -72,7 +72,7 @@ export const upload = (req, res) => {
                     // 保存成功
                     console.log('fs.rename done');
                     // 拼接图片url地址
-                    result = 'http://' + server + ':' + port + '/' + uploadfoldername + '/' + filename;
+                    result = '/' + uploadfoldername + '/' + filename;
                 }
 
                 // 返回结果
