@@ -1,5 +1,3 @@
-// 入口文件
-
 import './main.less';
 import './modules/style/chatRoom.less'
 
@@ -32,11 +30,45 @@ function renderDevTools(store) {
     }
 }
 
-ReactDOM.render(
-    <div>
-        <Provider store={ store }>
-            {createRoutes(history)}
-        </Provider>
-        {renderDevTools(store)}
-    </div>
-, document.getElementById('app'));
+const rootNode = document.getElementById('app');
+
+let render = ()=>
+    ReactDOM.render(
+        <div>
+            <Provider store={ store }>
+                {createRoutes(history)}
+            </Provider>
+            {renderDevTools(store)}
+        </div>
+    , rootNode);
+
+if (__DEV__) {
+    if (module.hot) {
+        // Development render functions
+        const renderApp = render;
+        const renderError = (error) => {
+            const RedBox = require('redbox-react').default
+
+            ReactDOM.render(<RedBox error={error} />, MOUNT_NODE)
+        };
+
+        // Wrap render in try/catch
+        render = () => {
+            try {
+                renderApp()
+            } catch (error) {
+                renderError(error)
+            }
+        };
+
+        // Setup hot module replacement
+        module.hot.accept('./routes/routes', () =>
+            setImmediate(() => {
+                ReactDOM.unmountComponentAtNode(rootNode);
+                render()
+            })
+        )
+    }
+}
+
+render()

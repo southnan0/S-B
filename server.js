@@ -21,14 +21,20 @@ const server = require('http').createServer(app);
 import timer from './servers/timer';
 import defaults from './servers/defaults';
 import chatroom from './servers/chatroom';
+import {upload} from './servers/upload';
+
 chatroom(server);
 
 function handleRender(req, res) {
-    if (req.url === '/time_sse.php') {
+    let {url} = req;
+    if (url === '/time_sse.php') {
         timer(req, res);
-    } else if (req.url.match(/\/voice\/(.*)/g)) {
-        let url = req.url.match(/\/voice\/(.*)/g)[0];
+    } else if (url.match(/\/voice\/(.*)/g)) {
         res.sendFile(__dirname + url);
+    } else if (url.match(/uploadfiles/g)) {
+        res.sendFile(__dirname + url);
+    } else if (url === '/upload') {
+        upload(req, res);
     } else {
         // req.url is the full url
         defaults(req, res);

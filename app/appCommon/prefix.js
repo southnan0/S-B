@@ -37,7 +37,6 @@ export const createReducer = (initialState, obj, prefix, spliter = '__')=>(state
     if (_.isEmpty(arrAction[0]) !== prefix && obj[action.type]) {
         return obj[action.type](state, action);
     } else {
-        console.info(state);
         return state;
     }
 };

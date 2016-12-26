@@ -20,14 +20,9 @@ module.exports= {
     resolve: {
         extensions: ['', '.js', '.jsx', '.json']
     },
-    module: {
-        loaders: [
-            { test: /\.jsx?$/, loaders: ['babel'], include: PATHS.app },
-            { test: /\.json$/, loaders: ['json'] }
-        ]
-    },
+    //todo  hot replace
     plugins: [
         new webpack.DefinePlugin({
             __DEBUG__: JSON.stringify(JSON.parse((TARGET === 'start') || 'false'))
         })]
-}
+};
