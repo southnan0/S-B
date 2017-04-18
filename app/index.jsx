@@ -6,7 +6,7 @@ import './modules/style/chatRoom.less'
 import React from 'react'
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
-import createBrowserHistory from 'history/lib/createBrowserHistory';
+import createHashHistory from 'history/lib/createHashHistory'
 
 import createRoutes from './routes/routes';
 import configureStore from './store/configureStore';
@@ -19,7 +19,7 @@ if(initialState) {
     })
 }
 const store = configureStore(initialState);
-const history = createBrowserHistory();
+const history = createHashHistory();
 
 function renderDevTools(store) {
     if(__DEBUG__) {
@@ -37,6 +37,6 @@ ReactDOM.render(
         <Provider store={ store }>
             {createRoutes(history)}
         </Provider>
-        {renderDevTools(store)}
+        {/*renderDevTools(store)*/}
     </div>
 , document.getElementById('app'));

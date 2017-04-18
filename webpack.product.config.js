@@ -3,7 +3,7 @@ const path = require('path');
 const merge = require('webpack-merge');
 const CleanPlugin = require('clean-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
-const HtmlwebpackPlugin = require('html-webpack-plugin');
+// const HtmlwebpackPlugin = require('html-webpack-plugin');
 
 const pkg = require('./package.json');
 const common = require('./webpack.common.config');
@@ -61,11 +61,11 @@ module.exports = merge(common, {
     },
     externals: ['ws'],
     plugins: [
-        new HtmlwebpackPlugin({
-            template: 'node_modules/html-webpack-template/index.html',
-            title: 'S-B',
-            appMountId: 'app'
-        }),
+        // new HtmlwebpackPlugin({
+        //     template: 'node_modules/html-webpack-template/index.html',
+        //     title: 'S-B',
+        //     appMountId: 'app'
+        // }),
         new webpack.optimize.CommonsChunkPlugin({ name: 'vendors' }),
         new webpack.optimize.UglifyJsPlugin({
             compress: {

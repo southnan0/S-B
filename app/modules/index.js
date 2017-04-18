@@ -1,15 +1,18 @@
 import React from 'react';
 import {Jumbotron} from 'react-bootstrap';
 
-const App = (props) => {
+const App = React.createClass({
 
-    return (
-        <div className="main-body">
-            <Jumbotron className="whole-cnt">
-                {props.children}
-            </Jumbotron>
-        </div>
-    )
-}
+    render() {
+        let {props} = this;
+        return (
+            <div className="main-body">
+                <Jumbotron className="whole-cnt">
+                    {props.children}
+                </Jumbotron>
+            </div>
+        )
+    }
+})
 
 export default App

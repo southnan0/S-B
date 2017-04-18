@@ -9,8 +9,8 @@ import {removeReducerPrefixer} from '../../appCommon/prefix';
 import Im from 'immutable';
 const TITLE = 'S&B聊天室';
 /*import '../style/chatRoom.less';*/
-@immutableRenderDecorator
 
+@immutableRenderDecorator
 class Chat extends Component {
     state = {
         userName: "",
