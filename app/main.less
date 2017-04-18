@@ -64,6 +64,7 @@ header {
 /*内容区域*/
 .whole-cnt {
   height: 100vh;
+  padding: 0 16px;
 }
 
 .cnt {
@@ -87,9 +88,12 @@ header {
 /*联系人*/
 .linker-cnt {
   border: 1px solid #ccc;
-  height: 100px;
+  float: left;
+  width: 130px;
+  height: 300px;
   overflow: auto;
   margin-bottom: 10px;
+  margin-right: 20px;
   background-color: #fff;
 }
 
@@ -100,8 +104,7 @@ header {
   overflow-y: auto;
   overflow-x: hidden;
   background-color: #fff;
-  padding-left: 10px;
-  padding-right: 10px;
+  padding: 10px;
 }
 
 .send-label {
@@ -131,4 +134,13 @@ header {
 
 .col-green {
   color: green;
+}
+
+.input-cnt {
+  clear: both;
+}
+
+.link-name {
+  margin: 0;
+  padding: 10px 5px;
 }

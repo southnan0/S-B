@@ -27,12 +27,18 @@ module.exports = merge(common, {
     colors: true,
     module: {
         loaders: [
-            { test: /\.less$/, loader: 'style!css!less', include: PATHS.app },
-            { test: /\.css$/, loaders: ['style', 'css'], include: PATHS.app }
+            {
+                test: /\.(gif|jpg|png|woff|svg|eot|ttf)\??.*$/,
+                loader: 'url-loader?limit=50000&name=[path][name].[ext]'
+            },
+            { test: /\.jsx?$/, loaders: ['babel'], include: PATHS.app },
+            {test: /\.less$/, loader: 'style!css!less'},
+            {test: /\.css$/, loaders: ['style', 'css']}
         ]
     },
     plugins: [
         new webpack.HotModuleReplacementPlugin(),
+        new webpack.NoErrorsPlugin(),
         new webpack.DefinePlugin({
             __DEV__: true,
             __WINDOW__: {}

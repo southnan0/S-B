@@ -12,7 +12,7 @@ export const setMessage = (data)=> {
 
 export const initChat = ()=> {
     return (dispatch, getState)=> {
-        socket = new io();
+        __DEV__ || (socket = new io());
         socket.on('login', (obj)=> {
             let {chat} = removeReducerPrefixer(getState(), 'CHAT_ROOM');
             chat = chat.toJS();

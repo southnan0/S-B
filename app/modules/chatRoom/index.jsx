@@ -8,7 +8,7 @@ import {Button, FormGroup, ControlLabel, FormControl, ButtonGroup} from 'react-b
 import {removeReducerPrefixer} from '../../appCommon/prefix';
 import Im from 'immutable';
 const TITLE = 'S&B聊天室';
-/*import '../style/chatRoom.less';*/
+import {Editor} from '../../components/Editor';
 
 @immutableRenderDecorator
 class Chat extends Component {
@@ -28,6 +28,7 @@ class Chat extends Component {
                 _self.setState({lastMessageLength: 0});
             }
         }, false);
+        if (__DEV__) return;
         if (io) {
             this.props.actions.initChat();
         } else {
@@ -43,14 +44,6 @@ class Chat extends Component {
         }
     }
 
-//todo  這裡要增加優化
-    /*shouldComponentUpdate(nextProps,nextState) {
-     if (Im.is(nextProps.chat.message, this.props.chat.message)) {
-     return false;
-     }
-     return true;
-     }*/
-
     componentDidUpdate(prevProps) {
         let chat = this.props.chat.toJS ? this.props.chat.toJS() : {message: []};
         let prevChat = prevProps.chat.toJS ? prevProps.chat.toJS() : {message: []};
@@ -64,7 +57,7 @@ class Chat extends Component {
 
         if (chat.hasLogin && (count = lastMessageLength) && count > 0) {
             if (document.hidden) {
-                document.title = `您有${count}条消息未读……`
+                document.title = `您有${count}条消息未读……`;
                 this.setState({lastMessageLength})
             } else {
                 document.title = TITLE;
@@ -80,7 +73,14 @@ class Chat extends Component {
         }
     }
 
-    operate(type, refs, e) {
+    operate(message) {
+        this.props.actions.sendMessage({
+            writeMessage: message
+        });
+        return true;
+    }
+
+    handleLogin(type, refs, e) {
         e && e.preventDefault();
         let obj = {}, newObj = {};
         if (refs.shift) {
@@ -97,13 +97,6 @@ class Chat extends Component {
         this.setState(newObj);
     }
 
-    handleKeyDown(type, refs, e) {
-        if (e.keyCode === 13 && e.ctrlKey) {
-            e.preventDefault(); //阻止默认回车换行
-            this.operate.call(this, type, refs)
-        }
-    }
-
     handleChange(attr, e) {
         this.setState({
             [attr]: e.currentTarget.value
@@ -117,63 +110,20 @@ class Chat extends Component {
 
     render() {
         let chat = this.props.chat.toJS ? this.props.chat.toJS() : {};
-        let {message={}, linker} = chat;
-        /*if (__DEV__) {
-         message = [{
-         cnt: "dfaf3424",
-         sendTime: new Date().toDateString(),
-         sender: "小刘"
-         }, {
-         cnt: "dfaf3424",
-         sendTime: new Date().toDateString(),
-         sender: "小刘1"
-         }, {
-         cnt: "dfaf3424",
-         sendTime: new Date().toDateString(),
-         sender: "小刘1"
-         }, {
-         cnt: "dfaf3424",
-         sendTime: new Date().toDateString(),
-         sender: "小刘1"
-         }, {
-         cnt: "dfaf3424",
-         sendTime: new Date().toDateString(),
-         sender: "小刘1"
-         }, {
-         cnt: "dfaf3424",
-         sendTime: new Date().toDateString(),
-         sender: "小刘1"
-         }, {
-         cnt: "dfaf3424",
-         sendTime: new Date().toDateString(),
-         sender: "小刘1"
-         }, {
-         cnt: "dfaf3424",
-         sendTime: new Date().toDateString(),
-         sender: "小刘1"
-         }, {
-         cnt: "dfaf3424",
-         sendTime: new Date().toDateString(),
-         sender: "小刘1"
-         }, {
-         cnt: "dfaf3424",
-         sendTime: new Date().toDateString(),
-         sender: "小刘最后一个"
-         }]
-         }*/
-        if (!chat.hasLogin) {
+        let {message = {}, linker} = chat;
+        if (__DEV__ ? false : !chat.hasLogin) {
             return (
-                <form className="page" onSubmit={this.operate.bind(this,'login',['userName','namespace'])}>
+                <form className="page" onSubmit={this.handleLogin.bind(this, 'login', ['userName', 'namespace'])}>
                     <FormGroup controlId="userName">
                         <ControlLabel>用户名</ControlLabel>
                         <FormControl type="text" value={this.state.userName}
-                                     onChange={this.handleChange.bind(this,'userName')}
+                                     onChange={this.handleChange.bind(this, 'userName')}
                                      placeholder="请输入用户名"/>
                     </FormGroup>
                     <FormGroup controlId="namespace">
                         <ControlLabel>暗号</ControlLabel>
                         <FormControl type="text" value={this.state.namespace}
-                                     onChange={this.handleChange.bind(this,'namespace')}
+                                     onChange={this.handleChange.bind(this, 'namespace')}
                                      placeholder="请输入暗号"/>
                     </FormGroup>
                     <Button type="submit"> 登录 </Button>
@@ -181,15 +131,16 @@ class Chat extends Component {
 
             )
         }
+        let {writeMessage} = this.state;
         return (
-            <div className="cnt" onKeyDown={this.handleKeyDown.bind(this,'sendMessage','writeMessage')}>
-                <h2>聊天室</h2>
+            <div className="cnt">
+                <p>聊天室</p>
                 <div ref="linkerCnt" className="linker-cnt">
                     <ButtonGroup vertical block>
                         {
-                            linker && Object.keys(linker).length > 0 && Object.keys(linker).map((key, index)=> {
+                            linker && Object.keys(linker).length > 0 && Object.keys(linker).map((key, index) => {
                                 let item = linker[key];
-                                return <p key={index}>{item}</p>
+                                return <p className="link-name" key={index}>{item}</p>
                             })
                         }
 
@@ -198,22 +149,21 @@ class Chat extends Component {
 
                 <div ref="chatCnt" className="chat-cnt">
                     {
-                        message && message.map && message.map((item, index)=> {
-                            return <p key={index}
-                                      className={item.sender === chat.userName?'right col-green':''}>{item.sender} {item.sendTime}说：<br/>{item.cnt}
-                            </p>
+                        message && message.map && message.map((item, index) => {
+                            return <div key={index}
+                                        className={item.sender === chat.userName ? 'right col-green' : ''}>{item.sender} {item.sendTime}说：
+                                <div dangerouslySetInnerHTML={{__html: item.cnt}}/>
+                            </div>
                         })
                     }
                 </div>
 
-                <form>
+                <form className="input-cnt">
                     <FormGroup className="send-cnt" controlId="formControlsTextarea">
                         <ControlLabel className="send-label">请输入信息</ControlLabel>
-                        <FormControl value={this.state.writeMessage} componentClass="textarea" placeholder="textarea"
-                                     onChange={this.handleChange.bind(this,'writeMessage')}/>
-                        <Button className="send-btn" type="button"
-                                onClick={this.operate.bind(this,'sendMessage','writeMessage')}> （ctrl+enter）发
-                            送 </Button>
+                        <Editor content=""
+                                handleSend={this.operate.bind(this)}
+                        />
                     </FormGroup>
                 </form>
                 <audio ref="message_video" width="0">
@@ -225,10 +175,10 @@ class Chat extends Component {
 }
 
 export default connect(
-    state=> {
+    state => {
         return removeReducerPrefixer(state, 'CHAT_ROOM')
     },
-    dispatch=>({
+    dispatch => ({
         actions: bindActionCreators(SseActions, dispatch)
     })
 )(Chat);

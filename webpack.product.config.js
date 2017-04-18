@@ -33,8 +33,8 @@ module.exports = merge(common, {
     debug: true,
     output: {
         path: PATHS.build,
-        filename: '[name].[chunkhash].js',
-        chunkFilename: '[chunkhash].js',
+        filename: '[name].[chunkhash:4].js',
+        chunkFilename: '[chunkhash:4].js',
     },
     resolve: {
         alias: {
@@ -53,20 +53,24 @@ module.exports = merge(common, {
             'ws'
         ],
         loaders: [
-            { test: /\.less$/, loader: ExtractTextPlugin.extract('style', 'css!less'), include: PATHS.app },
-            { test: /\.css$/, loader: ExtractTextPlugin.extract('style', 'css'), include: PATHS.app },
-            { test: /\.(png|jpg)$/, loader: 'url-loader?limit=8192', include: PATHS.app },
-            { test: /\.(woff|woff2)$/, loader: 'url-loader?limit=100000', include: PATHS.app }
+            {
+                test: /\.(gif|jpg|png|woff|svg|eot|ttf)\??.*$/,
+                loader: 'url-loader?limit=50000&name=[path][name].[ext]'
+            },
+            { test: /\.jsx?$/, loaders: ['babel'], include: PATHS.app },
+            { test: /\.json$/, loaders: ['json'] },
+            {test: /\.less$/, loader: ExtractTextPlugin.extract('style', 'css!less')},
+            {test: /\.css$/, loader: ExtractTextPlugin.extract('style', 'css')}
         ]
     },
     externals: ['ws'],
     plugins: [
-        // new HtmlwebpackPlugin({
-        //     template: 'node_modules/html-webpack-template/index.html',
-        //     title: 'S-B',
-        //     appMountId: 'app'
-        // }),
-        new webpack.optimize.CommonsChunkPlugin({ name: 'vendors' }),
+        new HtmlwebpackPlugin({
+            template: 'node_modules/html-webpack-template/index.html',
+            title: 'S-B',
+            appMountId: 'app'
+        }),
+        new webpack.optimize.CommonsChunkPlugin({name: 'vendors'}),
         new webpack.optimize.UglifyJsPlugin({
             compress: {
                 warnings: false
@@ -76,10 +80,11 @@ module.exports = merge(common, {
         new webpack.DefinePlugin({
             'process.env': {
                 NODE_ENV: '"production"'
-            }
+            },
+            __DEV__: false
         }),
         new CleanPlugin([PATHS.build]),
-        new ExtractTextPlugin('[name].[contenthash:20].css')
+        new ExtractTextPlugin('[name].[contenthash:4].css')
     ]
 })
 
