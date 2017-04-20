@@ -3,21 +3,11 @@ import {bindActionCreators} from 'redux';
 import {connect} from 'react-redux';
 import {immutableRenderDecorator} from 'react-immutable-render-mixin';
 import * as ItemActions from './actions';
-import {Button} from 'react-bootstrap';
 
 @immutableRenderDecorator
-
 class Home extends React.Component {
 
     static propTypes = {};
-
-    goToStart() {
-        this.props.history.pushState(null, '/chatRoom');
-    }
-
-    goToTEST() {
-        this.props.history.pushState(null, '/test');
-    }
 
     render() {
         const actions = this.props.actions;
@@ -25,11 +15,11 @@ class Home extends React.Component {
         return (
             <div className="cnt">
                 <div className="menu-btn">
-                    <Button bsStyle="link">logo</Button>
+                    <a>logo</a>
                         <span className="link-cnt">
-                        <Button bsStyle="link" onClick={this.goToTEST.bind(this)}>TEST</Button>
-                        <Button bsStyle="link" onClick={this.goToStart.bind(this)}>chatroom</Button>
-                            </span>
+                            <a className="menu-link" href="#/test">TEST</a>
+                            <a className="menu-link" href="#/chatRoom">chatroom</a>
+                        </span>
                 </div>
                 <div className="main-cnt">
                     <h1>Hello!</h1>

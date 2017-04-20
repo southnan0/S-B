@@ -15,12 +15,12 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>S&B</title>
-    <link href="./build/<%= assets.assetsByChunkName.vendors[1] %>" rel="stylesheet">
-    <link href="./build/<%= assets.assetsByChunkName.app[1] %>" rel="stylesheet">
-    <link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap.min.css">
-
-    <!-- 可选的Bootstrap主题文件（一般不用引入） -->
-    <link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+    <% 
+        assets.chunks.map(function(chunk){
+            if(chunk.files[1]){
+    %>
+        <link href="./build/<%= chunk.files[1] %>" rel="stylesheet">
+    <% }})%>
 </head>
 <body>
 
@@ -28,16 +28,27 @@
 <script>
     window.__INITIAL_STATE__ = <%- JSON.stringify(initialState) %>;
 </script>
-<!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
-<script src="//cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
-<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
-<script src="//cdn.bootcss.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-<script src="http://cdn.bootcss.com/react/0.14.7/react.min.js"></script>
-<script src="http://cdn.bootcss.com/react/0.14.7/react-dom.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
-<script src="./build/<%= assets.assetsByChunkName.vendors[0] %>"></script>
+<script>console.info(<%- JSON.stringify(assets) %>)</script>
+    <% 
+        assets.chunks.map(function(chunk){
+            if(chunk.files[0] && chunk.names[0] === 'vendors'){
+    %>
+        <script src="./build/<%= chunk.files[0] %>"></script>
+    <% }})%>
 
-<script src="./build/<%= assets.assetsByChunkName.app[0] %>"></script>
+    <% 
+        assets.chunks.map(function(chunk){
+            if(chunk.files[0] && chunk.names[0] === 'app'){
+    %>
+        <script src="./build/<%= chunk.files[0] %>"></script>
+    <% }})%>
 
+    <% 
+        assets.chunks.map(function(chunk){
+            if(chunk.files[0] && chunk.names[0] !== 'app' && chunk.names[0] !== 'vendors'){
+    %>
+        <script src="./build/<%= chunk.files[0] %>"></script>
+    <% }})%>
 </body>
 </html>

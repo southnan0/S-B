@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import {isEmpty} from 'lodash';
 
 export const actionPrefixer = (actions, prefix, spliter = '__')=> {
     let obj = {};
@@ -25,7 +25,7 @@ export const removeReducerPrefixer = (reducers, prefix, spliter = '__')=> {
     for (var key in reducers) {
         let arrKey = key.split(spliter);
         let keyPrefix = arrKey[0];
-        if (keyPrefix === prefix || _.isEmpty(keyPrefix)) {
+        if (keyPrefix === prefix || isEmpty(keyPrefix)) {
             obj[arrKey[1]] = reducers[key];
         }
     }
@@ -34,7 +34,7 @@ export const removeReducerPrefixer = (reducers, prefix, spliter = '__')=> {
 
 export const createReducer = (initialState, obj, prefix, spliter = '__')=>(state = initialState, action)=> {
     let arrAction = action.type.split(spliter);
-    if (_.isEmpty(arrAction[0]) !== prefix && obj[action.type]) {
+    if (isEmpty(arrAction[0]) !== prefix && obj[action.type]) {
         return obj[action.type](state, action);
     } else {
         return state;

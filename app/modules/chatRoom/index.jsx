@@ -1,14 +1,41 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import Component from '../../containers/component.jsx';
 import {bindActionCreators} from 'redux';
 import {connect} from 'react-redux';
 import * as SseActions from './actions';
 import {immutableRenderDecorator} from 'react-immutable-render-mixin';
-import {Button, FormGroup, ControlLabel, FormControl, ButtonGroup} from 'react-bootstrap';
 import {removeReducerPrefixer} from '../../appCommon/prefix';
 import Im from 'immutable';
 const TITLE = 'S&B聊天室';
 import {Editor} from '../../components/Editor';
+import { Form, Input, Tooltip, Icon, Cascader, Select, Row, Col, Checkbox, Button,Layout, Menu  } from 'antd';
+const { Header, Content, Footer,Sider } = Layout;
+const FormItem = Form.Item;
+const Option = Select.Option;
+
+const formItemLayout = {
+      labelCol: {
+        xs: { span: 24 },
+        sm: { span: 6 },
+      },
+      wrapperCol: {
+        xs: { span: 24 },
+        sm: { span: 14 },
+      },
+    };
+    const tailFormItemLayout = {
+      wrapperCol: {
+        xs: {
+          span: 24,
+          offset: 0,
+        },
+        sm: {
+          span: 14,
+          offset: 6,
+        },
+      },
+    };
 
 @immutableRenderDecorator
 class Chat extends Component {
@@ -113,59 +140,75 @@ class Chat extends Component {
         let {message = {}, linker} = chat;
         if (__DEV__ ? false : !chat.hasLogin) {
             return (
-                <form className="page" onSubmit={this.handleLogin.bind(this, 'login', ['userName', 'namespace'])}>
-                    <FormGroup controlId="userName">
-                        <ControlLabel>用户名</ControlLabel>
-                        <FormControl type="text" value={this.state.userName}
-                                     onChange={this.handleChange.bind(this, 'userName')}
-                                     placeholder="请输入用户名"/>
-                    </FormGroup>
-                    <FormGroup controlId="namespace">
-                        <ControlLabel>暗号</ControlLabel>
-                        <FormControl type="text" value={this.state.namespace}
-                                     onChange={this.handleChange.bind(this, 'namespace')}
-                                     placeholder="请输入暗号"/>
-                    </FormGroup>
-                    <Button type="submit"> 登录 </Button>
-                </form>
+                <Form className="page" onSubmit={this.handleLogin.bind(this, 'login', ['userName', 'namespace'])}>
+                    <FormItem {...formItemLayout}
+                        label="用户名"
+                        hasFeedback
+                        >
+                        <Input type="text" 
+                            value={this.state.userName}
+                            onChange={this.handleChange.bind(this, 'userName')}
+                            placeholder="请输入用户名"/>
+                    </FormItem>
+                    <FormItem {...formItemLayout}
+                        label="暗号"
+                        hasFeedback
+                        >
+                        <Input  type="text" 
+                            value={this.state.namespace}
+                            onChange={this.handleChange.bind(this, 'namespace')}
+                            placeholder="请输入暗号"/>
+                    </FormItem>
+                    <FormItem>
+                        <Button  type="primary" htmlType="submit"> 登录 </Button>
+                    </FormItem>
+                </Form>
 
             )
         }
         let {writeMessage} = this.state;
         return (
             <div className="cnt">
-                <p>聊天室</p>
-                <div ref="linkerCnt" className="linker-cnt">
-                    <ButtonGroup vertical block>
+                <Header style={{backgroundColor:'#fff',fontSize:24}}>聊天室</Header>
+                <Content ref="linkerCnt">
+                    <Layout style={{ padding: '0 16px 16px', background: '#fff' }}>
+                        <Sider width={200} style={{ background: '#fff' }}>
+                        <Menu
+                            mode="inline"
+                            defaultSelectedKeys={['1']}
+                            defaultOpenKeys={['sub1']}
+                            style={{ height: '100%',border:'1px solid #ccc' }}
+                        >
                         {
                             linker && Object.keys(linker).length > 0 && Object.keys(linker).map((key, index) => {
                                 let item = linker[key];
-                                return <p className="link-name" key={index}>{item}</p>
+                                return <Menu.Item className="link-name" key={index}>{item}</Menu.Item>
                             })
                         }
-
-                    </ButtonGroup>
-                </div>
-
-                <div ref="chatCnt" className="chat-cnt">
-                    {
-                        message && message.map && message.map((item, index) => {
-                            return <div key={index}
-                                        className={item.sender === chat.userName ? 'right col-green' : ''}>{item.sender} {item.sendTime}说：
-                                <div dangerouslySetInnerHTML={{__html: item.cnt}}/>
+                        </Menu>
+                        </Sider>
+                        <Content style={{ padding: '0 0 0 24px', minHeight: 280 }}>
+                            <div ref="chatCnt" className="chat-cnt">
+                                {
+                                    message && message.map && message.map((item, index) => {
+                                        return <div key={index}
+                                                    className={item.sender === chat.userName ? 'right col-green' : ''}>{item.sender} {item.sendTime}说：
+                                            <div dangerouslySetInnerHTML={{__html: item.cnt}}/>
+                                        </div>
+                                    })
+                                }
                             </div>
-                        })
-                    }
-                </div>
+                        </Content>
+                    </Layout>
+                
+                </Content>
 
-                <form className="input-cnt">
-                    <FormGroup className="send-cnt" controlId="formControlsTextarea">
-                        <ControlLabel className="send-label">请输入信息</ControlLabel>
+                <Footer className="input-cnt" style={{padding:0,marginTop:10}}>
+                        <p>请输入信息：</p>
                         <Editor content=""
                                 handleSend={this.operate.bind(this)}
                         />
-                    </FormGroup>
-                </form>
+                </Footer>
                 <audio ref="message_video" width="0">
                     <source src="../../../../voice/message.mp3" type="audio/mpeg"/>
                 </audio>

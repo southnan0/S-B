@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import {isEmpty,pick} from 'lodash';
 import {removeReducerPrefixer} from '../../appCommon/prefix';
 import {chatRoom} from '../setting';
 const {actionTypes} = chatRoom;
@@ -26,7 +26,7 @@ export const initChat = ()=> {
             chat = chat.toJS();
             let {message=[]} = chat;
             console.info(data)
-            _.isEmpty(data.message) || (message = message.concat(data.message));
+            isEmpty(data.message) || (message = message.concat(data.message));
             chat.message = message;
             console.info(chat)
             if(data.linker && data.linker.length>0){
@@ -37,7 +37,7 @@ export const initChat = ()=> {
                 })
             }
 
-            dispatch(setMessage(_.extend({}, chat, _.pick(data, 'hasLogin','userName'))));
+            dispatch(setMessage(Object.assign({}, chat, pick(data, 'hasLogin','userName'))));
         });
 
         socket.on('broadcasted', (data)=> {

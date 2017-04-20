@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button} from 'react-bootstrap';
+import {Button} from 'antd';
 
 export const Editor = React.createClass({
     // 编辑器样式

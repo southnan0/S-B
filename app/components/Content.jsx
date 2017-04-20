@@ -1,6 +1,6 @@
 import React from 'react';
 import { immutableRenderDecorator } from 'react-immutable-render-mixin';
-import _ from 'lodash';
+import {isEmpty} from 'lodash';
 import classNames from 'classnames';
 
 @immutableRenderDecorator
@@ -23,7 +23,7 @@ class Content extends React.Component {
 
 class ListItem extends React.Component {
     render() {
-        const liClass = classNames({ hidden: !_.isEmpty(this.props.filter) && this.props.filter != this.props.item})
+        const liClass = classNames({ hidden: !isEmpty(this.props.filter) && this.props.filter != this.props.item})
 
         return(
             <li className={liClass}>

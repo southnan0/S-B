@@ -11,6 +11,7 @@ import createHashHistory from 'history/lib/createHashHistory'
 import createRoutes from './routes/routes';
 import configureStore from './store/configureStore';
 import { fromJS } from 'immutable';
+import 'antd/dist/antd.less';
 
 const initialState = window.__INITIAL_STATE__;
 if(initialState) {

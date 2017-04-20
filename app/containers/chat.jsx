@@ -1,9 +1,10 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import Component from './component.jsx';
 import {bindActionCreators} from 'redux';
 import {connect} from 'react-redux';
 import * as SseActions from '../actions/sseActions';
-import {Button} from 'react-bootstrap';
+import {Button} from 'antd';
 
 class Chat extends Component {
     componentWillMount() {
