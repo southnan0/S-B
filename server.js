@@ -1,5 +1,6 @@
 import path from 'path';
 import express from 'express';
+var compression = require('compression');
 import bodyParser from 'body-parser';
 import fs from 'fs';
 
@@ -14,6 +15,8 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
 app.use(bodyParser.json());
+app.use(compression());
+// app.use(express.logger());
 app.use('/build', express.static(path.join(__dirname, 'build')));
 app.use(handleRender);
 const server = require('http').createServer(app);
