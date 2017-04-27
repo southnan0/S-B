@@ -3,6 +3,7 @@ const path = require('path');
 const merge = require('webpack-merge');
 const CleanPlugin = require('clean-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 
 const pkg = require('./package.json');
 const common = require('./webpack.common.config');
@@ -16,11 +17,15 @@ const whiteLists = [
     'express',
     'body-parser',
     'compression',
-    'ejs'
+    'ejs',
+    'antd',
+    'lodash',
+    'formidable',
+    'socket.io'
 ]
 
 const vendors = Object.keys(pkg.dependencies).filter((v) => {
-    return ['react','react-redux','react-router','redux'].indexOf(v) !== -1
+    return whiteLists.indexOf(v) === -1
 })
 
 module.exports = merge(common, {
@@ -29,7 +34,6 @@ module.exports = merge(common, {
         vendors: vendors
     },
     devtool: 'eval-source-map',
-    debug: true,
     output: {
         path: PATHS.build,
         filename: '[name].[chunkhash:4].js',
@@ -48,21 +52,16 @@ module.exports = merge(common, {
         console: true, fs: 'empty', tls: 'empty'
     },
     module: {
-        noParse: [
-            'ws'
-        ],
         loaders: [
             {
                 test: /\.(gif|jpg|png|woff|svg|eot|ttf)\??.*$/,
                 loader: 'url-loader?limit=50000&name=[path][name].[ext]'
             },
-            { test: /\.jsx?$/, loaders: ['babel'], include: PATHS.app },
-            { test: /\.json$/, loaders: ['json'] },
-            {test: /\.less$/, loader: ExtractTextPlugin.extract('style', 'css!less')},
-            {test: /\.css$/, loader: ExtractTextPlugin.extract('style', 'css')}
+            { test: /\.jsx?$/, loaders: ['babel-loader'], include: PATHS.app },
+            {test: /\.less$/, loader: ExtractTextPlugin.extract({fallback:'style-loader',use: 'css-loader!less-loader'})},
+            {test: /\.css$/, loader: ExtractTextPlugin.extract({fallback:'style-loader', use: 'css-loader'})}
         ]
     },
-    externals: ['ws'],
     plugins: [
         new webpack.optimize.CommonsChunkPlugin({name: 'vendors'}),
         new webpack.optimize.UglifyJsPlugin({

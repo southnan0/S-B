@@ -3,7 +3,7 @@
 import './main.less';
 import './modules/style/chatRoom.less'
 
-import React from 'react'
+import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import createHashHistory from 'history/lib/createHashHistory'
