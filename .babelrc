@@ -10,7 +10,8 @@
     "transform-class-properties",
     "transform-decorators-legacy",
     "transform-object-rest-spread",
-    ["import", { "libraryName": "antd", "style": "style" }] ,
+    ["import", {
+      "libraryName": "antd"}] ,
     "lodash"
   ],
   "env": {

@@ -9,7 +9,7 @@ import {removeReducerPrefixer} from '../../appCommon/prefix';
 import Im from 'immutable';
 const TITLE = 'S&B聊天室';
 import {Editor} from '../../components/Editor';
-import { Form, Input, Tooltip, Icon, Cascader, Select, Row, Col, Checkbox, Button,Layout, Menu  } from 'antd';
+import { Form, Input, Select, Button,Layout, Menu  } from 'antd';
 const { Header, Content, Footer,Sider } = Layout;
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -41,7 +41,7 @@ const formItemLayout = {
 class Chat extends Component {
     state = {
         userName: "",
-        namespace: "",
+        password: "",
         lastMessageLength: 0
     };
 
@@ -56,11 +56,7 @@ class Chat extends Component {
             }
         }, false);
         if (__DEV__) return;
-        if (io) {
-            this.props.actions.initChat();
-        } else {
-            this.props.history.pushState(null, '/');
-        }
+        this.props.actions.initChat();
     }
 
     componentDidMount() {
@@ -140,7 +136,7 @@ class Chat extends Component {
         let {message = {}, linker} = chat;
         if (__DEV__ ? false : !chat.hasLogin) {
             return (
-                <Form className="page" onSubmit={this.handleLogin.bind(this, 'login', ['userName', 'namespace'])}>
+                <Form className="page" onSubmit={this.handleLogin.bind(this, 'login', ['userName', 'password'])}>
                     <FormItem {...formItemLayout}
                         label="用户名"
                         hasFeedback
@@ -151,13 +147,13 @@ class Chat extends Component {
                             placeholder="请输入用户名"/>
                     </FormItem>
                     <FormItem {...formItemLayout}
-                        label="暗号"
+                        label="密碼"
                         hasFeedback
                         >
-                        <Input  type="text" 
-                            value={this.state.namespace}
-                            onChange={this.handleChange.bind(this, 'namespace')}
-                            placeholder="请输入暗号"/>
+                        <Input  type="password" 
+                            value={this.state.password}
+                            onChange={this.handleChange.bind(this, 'password')}
+                            placeholder="请输入密碼"/>
                     </FormItem>
                     <FormItem>
                         <Button  type="primary" htmlType="submit"> 登录 </Button>
@@ -169,7 +165,7 @@ class Chat extends Component {
         let {writeMessage} = this.state;
         return (
             <div className="cnt">
-                <Header style={{backgroundColor:'#fff',fontSize:24}}>聊天室</Header>
+                <Header style={{backgroundColor:'#fff',fontSize:24}}>聊天室 <Button onClick={this.props.actions.exit}>退出</Button></Header>
                 <Content ref="linkerCnt">
                     <Layout style={{ padding: '0 16px 16px', background: '#fff' }}>
                         <Sider width={200} style={{ background: '#fff' }}>

@@ -1,10 +1,11 @@
 import fs from 'fs';
 let socketIO = require('socket.io');
 
-let createFileName = (room, type, fileType = 'txt') => {
+let createFileName = (room='', type, fileType = 'txt') => {
     return `./chatData/${room}${type}${(new Date()).format('yyyyMMdd')}.${fileType}`
 };
 
+//读取历史信息
 let readData = (data) => {
     let arr = data.toString().split('\n');
     let arrData = [];
@@ -21,70 +22,142 @@ let readData = (data) => {
     return arrData;
 }
 
+// 获取历史消息记录
+const getOldMessage = (room)=>{
+    let hasOldMessage = false;
+    let msgFile;
+
+    try {
+        msgFile = fs.readFileSync(createFileName(room, 'message'));
+        hasOldMessage = readData(msgFile);
+    } catch (e) {
+        fs.appendFileSync(createFileName(room, 'message'), '');
+    }
+
+    return hasOldMessage;
+}
+
+//获取联系人列表
+const getLinkers = (room)=>{
+    let hasLinkers = false;
+    let usersFile;
+    try {
+        usersFile = fs.readFileSync(createFileName(room, 'users'));
+        hasLinkers = readData(usersFile);
+    } catch (e) {
+        fs.appendFileSync(createFileName(room, 'users'), '');
+    }
+    return hasLinkers;
+}
+
+//检查是否需要登录
+const checkLogon = (userName)=>{
+    const allLinkers = getLinkers() || [];
+
+    return allLinkers.find((user)=>user.name === userName) || {};
+}
+
+//校验密码是否正确
+const checkUserPassword = (storePassword,password)=>{
+    return storePassword === password;
+}
+
+
+//用户注册
+const doLogon = (users,room)=>{
+    const linker = Object({},users,{id: new Date().getTime() + (Math.random() * 10000).toFixed(0)});
+    try{
+        fs.appendFileSync(createFileName(room, 'users'), JSON.stringify(linker) + '\n');
+        return linker;
+    }catch(e){
+        throw e;
+    }
+}
+
 export default (server) => {
     let io = socketIO(server);
 
-    io.on('connection', function (socket) {
-    socket.on('message', (mes) => {
-        if (!socket.name) {
+    io.on('connection', function (socket) { 
+        socket.on('message', (mes) => {
+            if (socket.name) {
+                let msg = {
+                    sender: socket.name,
+                    cnt: mes.writeMessage,
+                    sendTime: (new Date()).format('yyyy-MM-dd hh:mm:ss')
+                };
+
+                return fs.appendFile(createFileName(socket.room, 'message'), JSON.stringify(msg) + '\n', (err) => {
+                    if (err) throw err;
+                    io.to(socket.room).emit('message', { message: [msg] });
+                });
+            }
+
             return socket.emit('login');
-        }
-        /*socket.to(socket.room).emit('message', {
-         sender: socket.name,
-         cnt: mes.writeMessage,
-         sendTime: new Date()
-         });*/
-        let msg = {
-            sender: socket.name,
-            cnt: mes.writeMessage,
-            sendTime: (new Date()).format('yyyy-MM-dd hh:mm:ss')
-        };
+        });
 
-        fs.appendFile(createFileName(socket.room, 'message'), JSON.stringify(msg) + '\n', (err) => {
-            if (err) throw err;
-            io.to(socket.room).emit('message', { message: [msg] });
-        })
-    });
+        socket.on('login', (obj) => {
+            socket.name = obj.userName;
+            socket.password = obj.password;
+            
+            let linker = checkLogon(obj.userName);
+            let users = {
+                name: obj.userName,
+                password:obj.password
+            };
+            if(!linker.name){
+                linker = doLogon(users,socket.room);
+            }else if(!checkUserPassword(linker.password,obj.password)){
+                return socket.emit('message', {
+                    hasLogin: false,
+                    errorCode:'9',
+                    errorMessage:'用戶名密碼錯誤'
+                });
+            }
 
-    socket.on('login', (obj) => {
-        socket.name = obj.userName;
-        socket.room = obj.namespace || 'default';
-        socket.join(socket.room);
-        let hasOldMessage = false;
-        let msgFile;
-        try {
-            msgFile = fs.readFileSync(createFileName(socket.room, 'message'));
-            hasOldMessage = readData(msgFile);
-        } catch (e) {
-            fs.appendFileSync(createFileName(socket.room, 'message'), '');
-        }
-        let hasLinkers = false;
-        let usersFile;
-        try {
-            usersFile = fs.readFileSync(createFileName(socket.room, 'users'));
-            hasLinkers = readData(usersFile);
-        } catch (e) {
-            fs.appendFileSync(createFileName(socket.room, 'users'), '');
-        }
-        let users = {
-            name: obj.userName,
-            id: new Date().getTime() + (Math.random() * 10000).toFixed(0)
-        };
-        fs.appendFile(createFileName(socket.room, 'users'), JSON.stringify(users) + '\n', (err) => {
-            if (err) throw err;
-            socket.emit('message', {
+            Object(users,{id:linker.id});
+            socket.idid = linker.id;
+
+            if(!io.users){
+                io.users = {};
+            }
+
+            io.users[obj.userName] = 'online';
+
+            socket.room = obj.room || 'default';
+            socket.join(socket.room);
+            
+            // 向房间广播通知谁上线了。
+            io.to(socket.room).emit('online',{
+                linker
+            });
+
+            let hasOldMessage = getOldMessage(socket.room) || [];
+
+            let hasLinkers = getLinkers('') || [];
+
+            let allUsers = [];
+            hasLinkers.map((user)=>{
+                allUsers.push(Object.assign({status:io.users[user.name]},user));
+            });
+
+            socket.emit('login', {
                 hasLogin: true,
                 userName: socket.name,
-                linker: hasLinkers || [],
-                message: hasOldMessage || []
-            });
-
-            io.to(socket.room).emit('message', {
-                linker: [users]
-            });
+                linker: allUsers,
+                message: hasOldMessage
+            });        
         });
+
+        socket.on('disconnect',()=>{
+            io.to(socket.room).emit('offline',{
+                linker:{
+                    name:socket.name,
+                    id:socket.idid,
+                    password:socket.password
+                }
+            });
+        })
     });
-});
 }
 
 

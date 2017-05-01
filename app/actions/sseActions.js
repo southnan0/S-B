@@ -1,3 +1,6 @@
+const io = require('socket.io-client');
+import {pick,omit,isEmpty} from 'lodash';
+
 export const setData = (data)=> {
     return {
         type: 'SET_DATA',
@@ -37,7 +40,7 @@ export const initChat = ()=> {
             chat = chat.toJS();
             let {message=[]} = chat;
             
-            dispatch(setMessage(_.extend({}, chat, obj)));
+            dispatch(setMessage(Object.assign({}, chat, obj)));
         });
 
         socket.on('message', (data)=> {
@@ -45,11 +48,11 @@ export const initChat = ()=> {
             chat = chat.toJS();
             let {message=[]} = chat;
 
-            let m = _.omit(data, 'hasLogin')
-            _.isEmpty(m) || message.push(m);
+            let m = omit(data, 'hasLogin')
+            isEmpty(m) || message.push(m);
             chat.message = message;
 
-            dispatch(setMessage(_.extend({}, chat, _.pick(data, 'hasLogin'))));
+            dispatch(setMessage(Object.assign({}, chat, pick(data, 'hasLogin'))));
         });
 
         socket.on('broadcasted', (data)=> {

@@ -58,7 +58,9 @@ module.exports = merge(common, {
                 loader: 'url-loader?limit=50000&name=[path][name].[ext]'
             },
             { test: /\.jsx?$/, loaders: ['babel-loader'], include: PATHS.app },
-            {test: /\.less$/, loader: ExtractTextPlugin.extract({fallback:'style-loader',use: 'css-loader!less-loader'})},
+            {
+                test: /\.less$/, 
+                loader: ExtractTextPlugin.extract({fallback:'style-loader',use: 'css-loader!less-loader'})},
             {test: /\.css$/, loader: ExtractTextPlugin.extract({fallback:'style-loader', use: 'css-loader'})}
         ]
     },
