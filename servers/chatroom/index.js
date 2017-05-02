@@ -65,7 +65,8 @@ const checkUserPassword = (storePassword,password)=>{
 
 //用户注册
 const doLogon = (users,room)=>{
-    const linker = Object({},users,{id: new Date().getTime() + (Math.random() * 10000).toFixed(0)});
+    const linker = Object.assign({},users,{id: new Date().getTime() + (Math.random() * 10000).toFixed(0)});
+    console.info(linker)
     try{
         fs.appendFileSync(createFileName(room, 'users'), JSON.stringify(linker) + '\n');
         return linker;
@@ -104,6 +105,7 @@ export default (server) => {
                 name: obj.userName,
                 password:obj.password
             };
+            
             if(!linker.name){
                 linker = doLogon(users,socket.room);
             }else if(!checkUserPassword(linker.password,obj.password)){
