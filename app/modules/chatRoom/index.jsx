@@ -67,6 +67,12 @@ class Chat extends Component {
         }
     }
 
+    componentWillReceiveProps(nextProps){
+        if(nextProps.hasLogin === false && nextProps.errorMessage){
+            console.info(nextProps.errorMessage);
+        }
+    }
+
     componentDidUpdate(prevProps) {
         let chat = this.props.chat.toJS ? this.props.chat.toJS() : {message: []};
         let prevChat = prevProps.chat.toJS ? prevProps.chat.toJS() : {message: []};

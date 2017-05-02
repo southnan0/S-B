@@ -2,7 +2,7 @@ import fs from 'fs';
 let socketIO = require('socket.io');
 
 let createFileName = (room='', type, fileType = 'txt') => {
-    return `./chatData/${room}${type}${(new Date()).format('yyyyMMdd')}.${fileType}`
+    return `./chatData/${room}${type}.${fileType}`
 };
 
 //读取历史信息
@@ -66,7 +66,6 @@ const checkUserPassword = (storePassword,password)=>{
 //用户注册
 const doLogon = (users,room)=>{
     const linker = Object.assign({},users,{id: new Date().getTime() + (Math.random() * 10000).toFixed(0)});
-    console.info(linker)
     try{
         fs.appendFileSync(createFileName(room, 'users'), JSON.stringify(linker) + '\n');
         return linker;
@@ -77,6 +76,13 @@ const doLogon = (users,room)=>{
 
 export default (server) => {
     let io = socketIO(server);
+    //todo 用于查看当前所有连接的id
+    io.of('/').adapter.clients((err,clients)=>{
+        if(err) {
+            return console.info(err)
+        }
+        console.info(clients)
+    });
 
     io.on('connection', function (socket) { 
         socket.on('message', (mes) => {
@@ -105,18 +111,18 @@ export default (server) => {
                 name: obj.userName,
                 password:obj.password
             };
-            
             if(!linker.name){
                 linker = doLogon(users,socket.room);
             }else if(!checkUserPassword(linker.password,obj.password)){
-                return socket.emit('message', {
+                return socket.emit('login', {
                     hasLogin: false,
+                    userName:obj.userName,
                     errorCode:'9',
                     errorMessage:'用戶名密碼錯誤'
                 });
             }
 
-            Object(users,{id:linker.id});
+            Object.assign(users,{id:linker.id});
             socket.idid = linker.id;
 
             if(!io.users){

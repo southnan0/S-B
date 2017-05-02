@@ -25,6 +25,8 @@ export const initChat = ()=> {
                     chat.linker['_l' + id] = l.name;
                 });
                 dispatch(setMessage(Object.assign({}, chat, pick(data, 'hasLogin','userName','message'))));
+            }else if(!data.hasLogin){
+                dispatch(setMessage(pick(data, 'hasLogin','errorMessage')))
             }else{
                 console.info('您尚未登录')
             }
